@@ -1,0 +1,115 @@
+name: CI/CD
+on:
+  pull_request:
+  push:
+    branches:
+    - main
+
+env:
+  RUSTUP_MAX_RETRIES: 10
+  MSRV: 1.91.0  # (keep this in sync with `Cargo.toml`'s `rust-version`)
+
+jobs:
+  msrv:
+    name: MSRV
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v5
+
+    - name: Install Rust toolchain
+      run: |
+        rustup install ${{ env.MSRV }} --profile=minimal
+        rustup default ${{ env.MSRV }}
+
+    - name: Install CI/CD tooling
+      run: cargo install sludge-cicd --debug
+
+    - name: Run CI/CD
+      run: sludge-cicd
+      env:
+        CICD_SKIP_DOCS: 1
+
+  docs:
+    name: Build docs
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v5
+
+    - name: Install Rust toolchain
+      run: |
+        rustup install nightly --profile=minimal
+        rustup default nightly
+
+    - name: Install CI/CD tooling
+      run: cargo install sludge-cicd --debug
+
+    - name: Build documentation
+      run: cargo doc --no-deps
+      env:
+        RUSTDOCFLAGS: --cfg=docsrs -Dwarnings
+
+  ci:
+    name: CI
+    strategy:
+      matrix:
+        include:
+          - os: ubuntu-latest
+            target: x86_64-unknown-linux-gnu
+          - os: ubuntu-latest
+            target: x86_64-unknown-linux-musl
+          - os: ubuntu-latest
+            target: i686-unknown-linux-musl
+    runs-on: ${{ matrix.os }}
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v5
+
+    - name: Install UPX
+      run: sudo apt update && sudo apt install upx-ucl
+
+    - name: Install Rust toolchain
+      run: rustup install stable --profile=minimal
+
+    - name: Install Rust target
+      run: rustup target add ${{ matrix.target }}
+
+    - name: Install CI/CD tooling
+      run: cargo install sludge-cicd --debug
+
+    - name: Run CI/CD
+      run: sludge-cicd --target ${{ matrix.target }}
+      env:
+        CICD_SKIP_DOCS: 1
+        SIZEBENCH: 1
+
+  cd:
+    name: Autopublish
+    needs: [ci, msrv, docs]
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: write  # pushes tags to the repo
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v5
+      with:
+        fetch-depth: 0
+
+    - name: Install Rust toolchain
+      run: rustup install stable --profile=minimal
+
+    - name: Install CI/CD tooling
+      run: cargo install sludge-cicd --debug
+
+    - name: Run CI/CD
+      run: sludge-cicd
+      env:
+        CRATES_IO_TOKEN: ${{ secrets.CRATES_IO_TOKEN }}
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        CICD_SKIP_DOCS: 1  # tested separately

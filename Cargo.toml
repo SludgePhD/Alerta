@@ -1,0 +1,15 @@
+[workspace]
+resolver = "3"
+members = ["crates/*"]
+package.rust-version = "1.91.0" # (keep this in sync with ci.yaml)
+package.edition = "2024"
+package.license = "0BSD"
+
+[profile.release]
+codegen-units = 1
+opt-level = "s"
+debug = "line-tables-only"
+split-debuginfo = "packed"
+panic = "abort"
+strip = true
+lto = true

@@ -1,0 +1,19 @@
+[package]
+name = "alerta-cli"
+version = "0.1.0"
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+
+[[bin]]
+name = "alerta"
+path = "src/main.rs"
+doc = false
+
+[[test]]
+name = "sizebench"
+harness = false
+
+[dependencies]
+alerta = { path = "../alerta", version = "0.1.0" }
+larpa = "0.1.0"
