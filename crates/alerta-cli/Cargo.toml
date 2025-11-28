@@ -1,6 +1,6 @@
 [package]
 name = "alerta-cli"
-version = "0.1.0"
+version = "0.1.1"
 edition.workspace = true
 rust-version.workspace = true
 license.workspace = true
@@ -18,5 +18,5 @@ name = "sizebench"
 harness = false
 
 [dependencies]
-alerta = { path = "../alerta", version = "0.1.0" }
+alerta = { path = "../alerta", version = "0.1.1" }
 larpa = "0.1.0"
