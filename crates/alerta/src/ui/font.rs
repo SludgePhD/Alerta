@@ -3,7 +3,7 @@ use raqote::DrawTarget;
 
 use crate::ui::{Rgb, rgb};
 
-const FALLBACK_FONT: &[u8] = include_bytes!("../../../../3rdparty/fonts/Cantarell-Regular.ttf");
+const FALLBACK_FONT: &[u8] = include_bytes!("../../3rdparty/fonts/Cantarell-Regular.ttf");
 
 pub(crate) struct Font {
     font: PxScaleFont<ab_glyph::FontRef<'static>>,

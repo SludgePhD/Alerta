@@ -235,10 +235,10 @@ impl FromStr for Icon {
 impl Icon {
     fn get(self) -> DrawTarget {
         let src: &[u8] = match self {
-            Icon::Error => include_bytes!("../../../3rdparty/icons/dialog-error.qoi"),
-            Icon::Warning => include_bytes!("../../../3rdparty/icons/dialog-warning.qoi"),
-            Icon::Info => include_bytes!("../../../3rdparty/icons/dialog-information.qoi"),
-            Icon::Question => include_bytes!("../../../3rdparty/icons/dialog-question.qoi"),
+            Icon::Error => include_bytes!("../3rdparty/icons/dialog-error.qoi"),
+            Icon::Warning => include_bytes!("../3rdparty/icons/dialog-warning.qoi"),
+            Icon::Info => include_bytes!("../3rdparty/icons/dialog-information.qoi"),
+            Icon::Question => include_bytes!("../3rdparty/icons/dialog-question.qoi"),
         };
 
         let mut qoi = Qoi::decode_header(src).unwrap();
