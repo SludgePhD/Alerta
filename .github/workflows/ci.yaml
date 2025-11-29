@@ -87,6 +87,18 @@ jobs:
         CICD_SKIP_DOCS: 1
         SIZEBENCH: 1
 
+    - name: Prepare artifact
+      run: |
+        cargo build --bin alerta --release --target ${{ matrix.target }}
+        mv target/${{ matrix.target }}/release/alerta  alerta-${{ matrix.target }}
+        mv target/${{ matrix.target }}/release/alerta-upx  alerta-${{ matrix.target }}-upx
+
+    - uses: actions/upload-artifact@v5
+      with:
+        name: ${{ matrix.target }}
+        path: alerta-${{ matrix.target }}
+        if-no-files-found: error
+
   cd:
     name: Autopublish
     needs: [ci, msrv, docs]
@@ -107,9 +119,15 @@ jobs:
     - name: Install CI/CD tooling
       run: cargo install sludge-cicd --debug
 
+    - uses: actions/download-artifact@v6
+      with:
+        path: target/dist/
+        merge-multiple: true
+
     - name: Run CI/CD
       run: sludge-cicd
       env:
         CRATES_IO_TOKEN: ${{ secrets.CRATES_IO_TOKEN }}
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         CICD_SKIP_DOCS: 1  # tested separately
+        ATTACHMENTS_alerta-cli: target/dist
